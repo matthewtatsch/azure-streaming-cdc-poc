@@ -6,7 +6,10 @@ This repository contains samples for using Azure Stream Analytics and Azure Data
 
 ```mermaid
 flowchart LR
-    srcDB[(1. Source Database)]
+    subgraph 1. Source
+        srcDB[(Source Database)]
+        cdc[/change_data.json/]
+    end
     subgraph 2. Stream Ingestion Layer
         eh[Event Hub]
     end
@@ -18,7 +21,8 @@ flowchart LR
         asaTable[4.1 Table 1]
         adbTable[4.2 Table 2]
     end
-    srcDB --"change data (JSON)"--> eh
+    srcDB --> cdc
+    cdc --> eh
     eh --> asa & adb
     asa --> asaTable
     adb --> adbTable
