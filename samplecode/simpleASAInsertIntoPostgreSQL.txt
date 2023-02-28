@@ -1,7 +1,0 @@
-
-SELECT
-    *
-INTO
-    [flexeastusbp-current-weather-2]
-FROM
-    [ehstdeastusbp-eh03]   
