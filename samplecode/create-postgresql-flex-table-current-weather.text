@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS public.current_weather_2
+(
+    city_name text COLLATE pg_catalog."default",
+    dt text COLLATE pg_catalog."default",
+    tm text COLLATE pg_catalog."default",
+    rnum bigint,
+    current_temperature double precision,
+    current_feels_like double precision,
+    current_pressure bigint,
+    current_humidity bigint,
+    weather_description text COLLATE pg_catalog."default",
+    eventprocessedutctime text COLLATE pg_catalog."default",
+    partitionid bigint,
+    eventenqueuedutctime text COLLATE pg_catalog."default",
+    current_weather_json json
+)
+
+TABLESPACE pg_default;
