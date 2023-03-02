@@ -1,5 +1,0 @@
-SELECT c.couponId, CONCAT(d.documentId, '_', d.createDatetime) AS documentFK, DATEDIFF(minute, c.createDatetime, d.createDatetime)
-FROM [coupon-stream] c TIMESTAMP BY createDatetime
-JOIN [document-stream] d TIMESTAMP BY createDatetime
-ON DATEDIFF(minute, c, d) BETWEEN 0 AND 15
-AND c.documentId = d.documentId
