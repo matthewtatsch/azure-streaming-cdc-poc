@@ -50,21 +50,8 @@ function New-EventHubRESTMessage {
     Invoke-RestMethod -Uri $URI -Method $method -Headers $headers -Body $body
 }
 
-# $date = Get-Date -DisplayHint Date -Format MM/dd/yyyy
-
-# Event Hub message for Document
-$SASTokenDocument = New-SASToken -URI $URI_DOCUMENT -Access_Policy_Name $Access_Policy_Name
-
+# Generate documentId as GUID
 $documentId = New-Guid
-$documentBody = @"
-{
-    "documentId": "$documentId",
-    "createDatetime": "$(Get-Date -Format o -AsUTC)"
-}
-"@
-
-$documentBody
-New-EventHubRESTMessage -URI $URI_DOCUMENT -SASToken $SASTokenDocument -body $documentBody
 
 # Event Hub message for Coupon
 $SASTokenCoupon = New-SASToken -URI $URI_COUPON -Access_Policy_Name $Access_Policy_Name
@@ -81,3 +68,18 @@ $couponBody = @"
 $couponBody
 New-EventHubRESTMessage -URI $URI_COUPON -SASToken $SASTokenCoupon -body $couponBody
 
+# Wait 45 seconds before generating and sending document message
+Start-Sleep -s 45
+
+# Event Hub message for Document
+$SASTokenDocument = New-SASToken -URI $URI_DOCUMENT -Access_Policy_Name $Access_Policy_Name
+
+$documentBody = @"
+{
+    "documentId": "$documentId",
+    "createDatetime": "$(Get-Date -Format o -AsUTC)"
+}
+"@
+
+$documentBody
+New-EventHubRESTMessage -URI $URI_DOCUMENT -SASToken $SASTokenDocument -body $documentBody
