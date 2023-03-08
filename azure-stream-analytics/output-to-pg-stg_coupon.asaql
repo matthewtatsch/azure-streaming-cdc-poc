@@ -1,14 +1,50 @@
-SELECT 
-    c.couponId AS coupon_id,
-    CONCAT(d.documentId, '_', d.createDatetime) AS document_id,
-    c.createDatetime AS src_coupon_created_at,
-    d.documentId AS src_document_id,
-    c.EventProcessedUtcTime AS asa_event_processed_time, 
-    c.PartitionId AS asa_partition_id, 
-    c.EventEnqueuedUtcTime AS asa_event_enqueued_utc_time,
-    DATEDIFF(minute, c.createDatetime, d.createDatetime)
-INTO [pg-stg-coupon]
-FROM [coupon-stream] c TIMESTAMP BY createDatetime
-JOIN [document-stream] d TIMESTAMP BY createDatetime
-ON DATEDIFF(minute, c, d) BETWEEN 0 AND 15
-AND c.documentId = d.documentId
+WITH 
+MatchedCoupons AS 
+(
+    SELECT 
+        c.couponId AS coupon_id,
+        CONCAT(d.documentId, '_', d.createDatetime) AS document_id,
+        c.createDatetime AS src_coupon_created_at,
+        d.documentId AS src_document_id,
+        c.scenario AS note,
+        c.EventProcessedUtcTime AS asa_event_processed_utc_time, 
+        c.EventEnqueuedUtcTime AS asa_event_enqueued_utc_time
+    FROM [in-eh-coupon] c TIMESTAMP BY createDatetime
+    JOIN [in-eh-document] d TIMESTAMP BY createDatetime
+    ON DATEDIFF(minute, d, c) BETWEEN 0 AND 1
+    AND c.documentId = d.documentId
+),
+UnmatchedCoupons AS 
+(
+    SELECT 
+        c.couponId,
+        c.createDatetime,
+        c.documentId,
+        c.scenario as note,
+        c.EventProcessedUtcTime, 
+        c.EventEnqueuedUtcTime
+    FROM [in-eh-coupon] c TIMESTAMP BY createDatetime
+    LEFT OUTER JOIN [in-eh-document] d TIMESTAMP BY createDatetime
+    ON DATEDIFF(minute, d, c) BETWEEN 0 AND 1
+    AND c.documentId = d.documentId
+    AND d.documentId IS NULL
+)
+
+SELECT
+    coupon_id,
+    document_id,
+    src_coupon_created_at,
+    src_document_id,
+    note,
+    asa_event_processed_utc_time,
+    asa_event_enqueued_utc_time
+INTO [out-pg-coupon]
+FROM MatchedCoupons
+
+SELECT
+    couponId,
+    createDatetime,
+    documentId,
+    note
+INTO [out-eh-coupon-retry]
+FROM UnmatchedCoupons

@@ -1,5 +1,7 @@
 ﻿[Reflection.Assembly]::LoadWithPartialName("System.Web") | out-null
 
+$scenario = "Document sent first"
+
 # Set the following environment variables before running the script:
 $EVENT_HUB_NAMESPACE=$Env:EVENT_HUB_NAMESPACE
 $Access_Policy_Key=$Env:EVENT_HUB_KEY
@@ -50,6 +52,9 @@ function New-EventHubRESTMessage {
     Invoke-RestMethod -Uri $URI -Method $method -Headers $headers -Body $body
 }
 
+# Display scenario message
+Write-Host $scenario -ForegroundColor Yellow
+
 # Generate documentId as GUID
 $documentId = New-Guid
 
@@ -59,7 +64,8 @@ $SASTokenDocument = New-SASToken -URI $URI_DOCUMENT -Access_Policy_Name $Access_
 $documentBody = @"
 {
     "documentId": "$documentId",
-    "createDatetime": "$(Get-Date -Format o -AsUTC)"
+    "createDatetime": "$(Get-Date -Format o -AsUTC)",
+    "scenario": "$scenario"
 }
 "@
 
@@ -74,7 +80,8 @@ $couponBody = @"
 {
     "couponId": "$couponId",
     "createDatetime": "$(Get-Date -Format o -AsUTC)",
-    "documentId": "$documentId"
+    "documentId": "$documentId",
+    "scenario": "$scenario"
 }
 "@
 

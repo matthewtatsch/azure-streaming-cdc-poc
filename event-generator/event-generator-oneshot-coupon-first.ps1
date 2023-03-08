@@ -1,5 +1,7 @@
 ﻿[Reflection.Assembly]::LoadWithPartialName("System.Web") | out-null
 
+$scenario = "Coupon sent first"
+
 # Set the following environment variables before running the script:
 $EVENT_HUB_NAMESPACE=$Env:EVENT_HUB_NAMESPACE
 $Access_Policy_Key=$Env:EVENT_HUB_KEY
@@ -50,10 +52,23 @@ function New-EventHubRESTMessage {
     Invoke-RestMethod -Uri $URI -Method $method -Headers $headers -Body $body
 }
 
-# Generate documentId as GUID
-$documentId = New-Guid
+# Display scenario message
+Write-Host $scenario -ForegroundColor Yellow
 
-# Event Hub message for Coupon
+# Generate document
+$SASTokenDocument = New-SASToken -URI $URI_DOCUMENT -Access_Policy_Name $Access_Policy_Name
+
+$documentId = New-Guid
+$documentBody = @"
+{
+    "documentId": "$documentId",
+    "createDatetime": "$(Get-Date -Format o -AsUTC)",
+    "scenario": "$scenario"
+}
+"@
+# End Generate document
+
+# Generate coupon
 $SASTokenCoupon = New-SASToken -URI $URI_COUPON -Access_Policy_Name $Access_Policy_Name
 
 $couponId = New-Guid
@@ -61,25 +76,19 @@ $couponBody = @"
 {
     "couponId": "$couponId",
     "createDatetime": "$(Get-Date -Format o -AsUTC)",
-    "documentId": "$documentId"
+    "documentId": "$documentId",
+    "scenario": "$scenario"
 }
 "@
+# End generate coupon
 
+# Send Event Hub message for Coupon
 $couponBody
 New-EventHubRESTMessage -URI $URI_COUPON -SASToken $SASTokenCoupon -body $couponBody
 
-# Wait 45 seconds before generating and sending document message
-Start-Sleep -s 45
+# Wait before generating and sending document message
+Start-Sleep -s 90
 
-# Event Hub message for Document
-$SASTokenDocument = New-SASToken -URI $URI_DOCUMENT -Access_Policy_Name $Access_Policy_Name
-
-$documentBody = @"
-{
-    "documentId": "$documentId",
-    "createDatetime": "$(Get-Date -Format o -AsUTC)"
-}
-"@
-
+# Send Event Hub message for Document
 $documentBody
 New-EventHubRESTMessage -URI $URI_DOCUMENT -SASToken $SASTokenDocument -body $documentBody

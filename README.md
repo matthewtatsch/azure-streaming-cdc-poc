@@ -53,6 +53,7 @@ flowchart LR
 # Notes on things to be sure to document
 
 - If using a local client tool to connect to PostgreSQL, be sure to add firewall rules for the source IP address
+- Be sure to grant ASA jobs the corresponding Event Hub Receiver role on Event Hub
 
 # Useful Resources
 

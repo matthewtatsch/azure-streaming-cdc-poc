@@ -2,8 +2,8 @@ SELECT
     CONCAT(documentId, '_', createDatetime) AS document_id, 
     documentId AS src_document_id, 
     createDatetime AS src_document_created_at, 
+    scenario AS note,
     EventProcessedUtcTime AS asa_event_processed_time, 
-    PartitionId AS asa_partition_id, 
     EventEnqueuedUtcTime AS asa_event_enqueued_utc_time
-INTO [pg-stg-document]
-FROM [document-stream]
+INTO [out-pg-document]
+FROM [in-eh-document]

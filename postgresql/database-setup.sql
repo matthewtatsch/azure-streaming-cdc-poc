@@ -6,8 +6,8 @@ CREATE TABLE stg_document (
     src_document_id VARCHAR(255) NOT NULL,
     src_document_created_at TIMESTAMP NOT NULL,
     asa_event_processed_utc_time TIMESTAMP NOT NULL,
-    asa_partition_id INT NOT NULL,
     asa_event_enqueued_utc_time TIMESTAMP NOT NULL,
+    note VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -19,9 +19,8 @@ CREATE TABLE stg_coupon (
     src_document_id VARCHAR(255) NOT NULL,
     src_coupon_created_at TIMESTAMP NOT NULL,
     asa_event_processed_utc_time TIMESTAMP NOT NULL,
-    asa_partition_id INT NOT NULL,
     asa_event_enqueued_utc_time TIMESTAMP NOT NULL,
-    DATEDIFF INT,
+    note VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
